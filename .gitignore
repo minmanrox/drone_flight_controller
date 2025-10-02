@@ -1,0 +1,44 @@
+# Vivado generated files and build directories
+*.log
+*.jou
+*.str
+*.xpr
+*.Xil/
+.cache/
+.hw/
+.ip_user_files/
+.sim/
+.srcs/
+.webtalk/
+.runs/
+.launch/
+*.data/
+*.sysdef
+*.backup/
+*.vivado/
+*.directive/
+
+# Vivado HLS projects
+*_prj/
+
+# Xilinx SDK files
+.sdk/
+
+# Simulation outputs
+*.vcd
+*.wdb
+*.vpd
+*.wlf
+*.lxt*
+
+# OS and IDE files
+*~
+*.sw?
+*.swo
+*.bak
+*.tmp
+*.DS_Store
+Thumbs.db
+*.orig
+*.vscode/
+.idea/

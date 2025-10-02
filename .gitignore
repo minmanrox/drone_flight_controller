@@ -4,10 +4,10 @@
 *.str
 *.xpr
 *.Xil/
-.cache/
-.hw/
-.ip_user_files/
-.sim/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.sim/
 .srcs/
 .webtalk/
 .runs/

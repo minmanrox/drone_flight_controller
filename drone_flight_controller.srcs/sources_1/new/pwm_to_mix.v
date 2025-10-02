@@ -5,7 +5,7 @@
 // File         : pwm_to_mix.v
 // Author       : Kyle Minihan
 // Created      : 02 October 2025
-// Description  : Convert the input PWM signals from the receiver into signed values
+// Description  : Convert the input PWM signals from the receiver into unsigned values
 //                  for throttle/pitch/roll/yaw
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -19,15 +19,31 @@ module pwm_to_mix(
 );
     reg [19:0] high_counter = 0;
     reg [19:0] pulse_width = 0;
+//    reg [19:0] bounded_pw;
+    reg prev_pwm_in = 0;
 
     always @(posedge clk) begin
+        prev_pwm_in <= pwm_in; // register for edge detection
+
+        // Count HIGH time
         if (pwm_in)
             high_counter <= high_counter + 1;
-        else begin
-            pulse_width  <= high_counter;
+        else
             high_counter <= 0;
-            // Map pulse_width to signed value, e.g. from 1ms-2ms to -127:+127
-            value <= $signed((pulse_width - `PWM_PERIOD) * 127 / `PWM_PERIOD); // for 125MHz
+
+        // Falling edge detector: previous=1, current=0
+        if (prev_pwm_in & ~pwm_in) begin
+            // clamp value to range
+            if (high_counter <= `PWM_MIN)
+                pulse_width <= `PWM_MIN;
+            else if (high_counter >= `PWM_MAX)
+                pulse_width <= `PWM_MAX;
+            else
+                pulse_width <= high_counter;
+            
+//            pulse_width <= high_counter;
+            // Map pulse_width to unsigned value
+            value <= ((pulse_width - `PWM_MIN) * 255 / (`PWM_MAX-`PWM_MIN));
         end
     end
 endmodule

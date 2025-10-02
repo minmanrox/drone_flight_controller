@@ -21,7 +21,7 @@ module mix_to_pwm (
 
     // Use wire with assign for combinational logic
     wire [19:0] pulse_width;
-    assign pulse_width = `PWM_REF + ((motor_value + 127) * `PWM_REF / 254);
+    assign pulse_width = `PWM_MIN + ((motor_value + 127) * `PWM_MAX-`PWM_MIN / 254);
 
     always @(posedge clk) begin
         if (counter < `PWM_PERIOD - 1)

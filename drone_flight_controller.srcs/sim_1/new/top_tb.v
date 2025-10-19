@@ -72,7 +72,7 @@ module top_tb();
 //        end
         
         /* Straight flight */
-        // All at 0
+//         All at 0
 //        pwm_in1 = 1; pwm_in2 = 1; pwm_in3 = 1; pwm_in4 = 1;
 //        #1000;
 //        pwm_in1 = 0; pwm_in2 = 1; pwm_in3 = 1; pwm_in4 = 1;
@@ -101,30 +101,113 @@ module top_tb();
 //        #18000;
 
         /* Test pitch */
-        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #1000; pwm_in3 = 0; // pitch back - should see front motors (1&2) greater than rear (3&4)
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #14470;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #1510; pwm_in3 = 0; // pitch nneutral - should see motors equal
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #13960;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #1750; pwm_in3 = 0; // pitch forwards - should see rear motors (3&4) greater than front (1&2)
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #13720;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #2000; pwm_in3 = 0; // pitch forwards - should see rear motors (3&4) greater than front (1&2)
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #13470;
+
+        /* Test yaw */
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1000; pwm_in2 = 0; // yaw left - should see CCW motors (1&3) greater than CW (2&4)
+//        pwm_in3 = 1; #1510; pwm_in3 = 0; 
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #14470;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0; // yaw neutral - should see motors equal
+//        pwm_in3 = 1; #1510; pwm_in3 = 0;
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #13960;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1750; pwm_in2 = 0; // yaw right - should see CW motors (2&4) greater than CCW (1&3)
+//        pwm_in3 = 1; #1510; pwm_in3 = 0;
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #13720;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #2000; pwm_in3 = 0; // yaw right - should see CW motors (2&4) greater than CCW (1&3)
+//        pwm_in4 = 1; #1510; pwm_in4 = 0;
+//        #13470;
+         
+         
+        /* Test roll */
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #1510; pwm_in3 = 0; 
+//        pwm_in4 = 1; #1000; pwm_in4 = 0; // roll left - should see right motors (2&3) greater than left (1&4)
+//        #14470;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #1510; pwm_in3 = 0;
+//        pwm_in4 = 1; #1510; pwm_in4 = 0; // roll neutral - should see motors equal
+//        #13960;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #1510; pwm_in3 = 0;
+//        pwm_in4 = 1; #1750; pwm_in4 = 0; // roll right - should see left motors (1&4) greater than right (2&3)
+//        #13720;
+        
+//        pwm_in1 = 1; #1510; pwm_in1 = 0;
+//        pwm_in2 = 1; #1510; pwm_in2 = 0;
+//        pwm_in3 = 1; #1510; pwm_in3 = 0;
+//        pwm_in4 = 1; #2000; pwm_in4 = 0; // roll right - should see left motors (1&4) greater than right (2&3)
+//        #13470;
+
+        /* Throttle overflow */
+        pwm_in1 = 1; #1000; pwm_in1 = 0; // throttle down - should see low output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
-        pwm_in3 = 1; #1000; pwm_in3 = 0; // pitch back - should see front (1&2) greater than rear (3&4)
+        pwm_in3 = 1; #1510; pwm_in3 = 0; 
         pwm_in4 = 1; #1510; pwm_in4 = 0;
         #14470;
         
-        pwm_in1 = 1; #1510; pwm_in1 = 0;
+        pwm_in1 = 1; #1490; pwm_in1 = 0; // throttle neutral - should see medium output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
-        pwm_in3 = 1; #1510; pwm_in3 = 0; // pitch nneutral - should see motors equal
+        pwm_in3 = 1; #1510; pwm_in3 = 0;
+        pwm_in4 = 1; #1510; pwm_in4 = 0;
+        #13980;
+
+        
+        pwm_in1 = 1; #1510; pwm_in1 = 0; // throttle neutral - should see medium output
+        pwm_in2 = 1; #1510; pwm_in2 = 0;
+        pwm_in3 = 1; #1510; pwm_in3 = 0;
         pwm_in4 = 1; #1510; pwm_in4 = 0;
         #13960;
         
-        pwm_in1 = 1; #1510; pwm_in1 = 0;
+        pwm_in1 = 1; #1750; pwm_in1 = 0; // throttle up - should see higher output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
-        pwm_in3 = 1; #1750; pwm_in3 = 0; // pitch forwards - should see rear motors (3&4) greater than front (1&2)
+        pwm_in3 = 1; #1510; pwm_in3 = 0;
         pwm_in4 = 1; #1510; pwm_in4 = 0;
         #13720;
         
-        pwm_in1 = 1; #1510; pwm_in1 = 0;
+        pwm_in1 = 1; #2000; pwm_in1 = 0; // throttle max - should see highest output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
-        pwm_in3 = 1; #2000; pwm_in3 = 0; // pitch forwards - should see rear motors (3&4) greater than front (1&2)
+        pwm_in3 = 1; #1510; pwm_in3 = 0;
         pwm_in4 = 1; #1510; pwm_in4 = 0;
         #13470;
-          
+
         
 
         

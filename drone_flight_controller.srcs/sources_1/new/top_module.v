@@ -18,7 +18,7 @@ module top_module (
     output pwm_out1, pwm_out2, pwm_out3, pwm_out4
 );
     wire signed [7:0] throttle, yaw, pitch, roll;
-    wire signed [8:0] m1, m2, m3, m4;
+    wire signed [9:0] m1, m2, m3, m4;
 
     pwm_to_mix r1 (.clk(clk), .pwm_in(pwm_in1), .value(throttle));
     pwm_to_mix r2 (.clk(clk), .pwm_in(pwm_in2), .value(yaw));

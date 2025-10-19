@@ -14,14 +14,14 @@
 
 module mix_to_pwm (
     input clk,                    // 125 MHz
-    input signed [8:0] motor_value, // Mixer value (-127 to +127 ideally)
+    input signed [9:0] motor_value, // Mixer value (-512 to +511 ideally)
     output reg pwm_out
 );
     reg [21:0] counter = 0;
 
     // Use wire with assign for combinational logic
     wire [19:0] pulse_width;
-    assign pulse_width = `PWM_MIN + ((motor_value + 127) * `PWM_MAX-`PWM_MIN / 254);
+    assign pulse_width = `PWM_MIN + ((motor_value + 512) * (`PWM_MAX-`PWM_MIN) / 1024);
 
     always @(posedge clk) begin
         if (counter < `PWM_PERIOD - 1)

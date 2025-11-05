@@ -17,6 +17,8 @@
 *.backup/
 *.vivado/
 *.directive/
+*.gen/
+*.runs/
 
 # Vivado HLS projects
 *_prj/
@@ -30,6 +32,7 @@
 *.vpd
 *.wlf
 *.lxt*
+*.wcfg
 
 # OS and IDE files
 *~
@@ -42,3 +45,8 @@ Thumbs.db
 *.orig
 *.vscode/
 .idea/
+_ide/
+
+# Whatever these are
+*.xml
+*.rst

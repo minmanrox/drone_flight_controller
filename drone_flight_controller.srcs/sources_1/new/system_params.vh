@@ -4,3 +4,4 @@
 `define PWM_CENTER      187_500     // 1.5ms
 `define PWM_PERIOD      2_500_000   // 20ms @ 125MHz
 `define CLK_PERIOD      8           // 8ns period for 125MHz
+`define CALIB_HOLD      625_000_000 // 5 seconds at 125 MHz

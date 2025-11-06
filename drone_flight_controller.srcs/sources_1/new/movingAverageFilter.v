@@ -18,18 +18,29 @@ module movingAverageFilter #(
     output reg [9:0] filtered
     );
     
-    reg [13:0] sum;
+    reg [13:0] sum = 0;
     reg [9:0] data [0:N-1];
     integer i;
+    reg [21:0] sample_counter = 0;
+    
+    initial begin
+    for (i = 0; i < N; i = i + 1)
+        data[i] = 10'b0;
+    end
     
     always @(posedge clk) begin
-      sum <= sum + unfiltered - data[N-1];
-      // shift register logic for data[]
-      for (i = N-1; i > 0; i = i - 1)
-        data[i] <= data[i-1];
-      data[0] <= unfiltered;
-    
-      filtered <=  sum / N;
+        if (sample_counter < `PWM_PERIOD - 1) begin
+            sample_counter <= sample_counter + 1;
+        end else begin
+            sample_counter <= 0;
+            sum <= sum + unfiltered - data[N-1];
+            // shift register logic for data[]
+            for (i = N-1; i > 0; i = i - 1)
+              data[i] <= data[i-1];
+              data[0] <= unfiltered;
+            
+            filtered <=  sum / N;
+        end
     end
 
 endmodule

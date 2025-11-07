@@ -28,6 +28,9 @@ set_property IOSTANDARD LVCMOS33 [get_ports {pwm_in3}]
 set_property PACKAGE_PIN T12 [get_ports {pwm_in4}]
 set_property IOSTANDARD LVCMOS33 [get_ports {pwm_in4}]
 
+set_property PACKAGE_PIN V12 [get_ports {arm_in}]
+set_property IOSTANDARD LVCMOS33 [get_ports {arm_in}]
+
 # PWM outputs
 set_property PACKAGE_PIN T14 [get_ports {pwm_out1}]
 set_property IOSTANDARD LVCMOS33 [get_ports {pwm_out1}]
@@ -40,3 +43,10 @@ set_property IOSTANDARD LVCMOS33 [get_ports {pwm_out3}]
 
 set_property PACKAGE_PIN V17 [get_ports {pwm_out4}]
 set_property IOSTANDARD LVCMOS33 [get_ports {pwm_out4}]
+
+# Buttons/LEDs
+set_property PACKAGE_PIN K18 [get_ports {calib_reset_button}]
+set_property IOSTANDARD LVCMOS33 [get_ports {calib_reset_button}]
+
+set_property PACKAGE_PIN M14 [get_ports {calibration_led}]
+set_property IOSTANDARD LVCMOS33 [get_ports {calibration_led}]

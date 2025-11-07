@@ -18,7 +18,10 @@
 module mix_to_pwm (
     input clk,                    // 125 MHz
     input signed [9:0] motor_value, // Mixer value (-512 to +511 ideally)
-    output reg pwm_out
+    input arm,
+    input reset_cal,
+    output reg pwm_out,
+    output reg calibration_complete
 );
     reg [21:0] counter = 0;
     reg [29:0] calibration_counter = 0;  // Counter for calibration timing
@@ -29,7 +32,7 @@ module mix_to_pwm (
 
     // Use wire with assign for combinational logic
     wire [19:0] pulse_width;
-    assign pulse_width = `PWM_MIN + ((motor_value + 512) * (`PWM_MAX-`PWM_MIN) / 1024);
+    assign pulse_width = arm ? `PWM_MIN + ((motor_value + 512) * (`PWM_MAX-`PWM_MIN) / 1024) : 0;
     
     // Pulse MIN or MAX based on calibration state
     wire [19:0] calibration_pulse_width;
@@ -41,7 +44,11 @@ module mix_to_pwm (
     
     // Calibration state machine
     always @(posedge clk) begin
-        if (calibration_state != 2'd2) begin
+        if (reset_cal == 1'b1) begin
+            calibration_counter <= 0;
+            calibration_state <= 0;
+        end
+        else if (calibration_state != 2'd2) begin
             if (calibration_counter < CAL_TIME - 1) begin
                 calibration_counter <= calibration_counter + 1;
             end else begin
@@ -49,6 +56,10 @@ module mix_to_pwm (
                 calibration_state <= calibration_state + 1;
             end
         end
+    end
+    
+    always @(posedge clk) begin
+        calibration_complete <= (calibration_state == 2'd2) ? 1'b1 : 1'b0;
     end
 
     // Generate PWM by counting up to pulse_width

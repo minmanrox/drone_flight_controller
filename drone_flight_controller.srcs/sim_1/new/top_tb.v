@@ -17,6 +17,9 @@ module top_tb();
 
     // Outputs from your DUT
     wire pwm_out1, pwm_out2, pwm_out3, pwm_out4;
+    
+    reg arm_in, calib_reset_button;
+    wire calibration_led;
 
     // Instantiate the DUT (Design Under Test)
     top_module dut (
@@ -28,7 +31,10 @@ module top_tb();
         .pwm_out1(pwm_out1),
         .pwm_out2(pwm_out2),
         .pwm_out3(pwm_out3),
-        .pwm_out4(pwm_out4)
+        .pwm_out4(pwm_out4),
+        .arm_in(arm_in),
+        .calib_reset_button(calib_reset_button),
+        .calibration_led(calibration_led)
     );
 
     // Clock Generation (125MHz simulated; period = 8ns)
@@ -40,6 +46,9 @@ module top_tb();
     initial begin
         // Initialize all signals
         pwm_in1 = 0; pwm_in2 = 0; pwm_in3 = 0; pwm_in4 = 0;
+        
+        arm_in = 0;
+        calib_reset_button = 0;
 
         // Wait a few cycles for init
         #10;
@@ -181,32 +190,40 @@ module top_tb();
         pwm_in2 = 1; #1510; pwm_in2 = 0;
         pwm_in3 = 1; #1510; pwm_in3 = 0; 
         pwm_in4 = 1; #1510; pwm_in4 = 0;
-        #14470;
+        arm_in  = 1; #1000; arm_in  = 0;
+        #13470;
         
         pwm_in1 = 1; #1490; pwm_in1 = 0; // throttle neutral - should see medium output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
         pwm_in3 = 1; #1510; pwm_in3 = 0;
         pwm_in4 = 1; #1510; pwm_in4 = 0;
-        #13980;
+        arm_in  = 1; #1000; arm_in  = 0;
+        #12980;
+//        arm_in = 1;
 
         
         pwm_in1 = 1; #1510; pwm_in1 = 0; // throttle neutral - should see medium output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
         pwm_in3 = 1; #1510; pwm_in3 = 0;
         pwm_in4 = 1; #1510; pwm_in4 = 0;
-        #13960;
+        arm_in  = 1; #2000; arm_in  = 0;
+        #11960;
         
         pwm_in1 = 1; #1750; pwm_in1 = 0; // throttle up - should see higher output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
         pwm_in3 = 1; #1510; pwm_in3 = 0;
         pwm_in4 = 1; #1510; pwm_in4 = 0;
-        #13720;
+        arm_in  = 1; #2000; arm_in  = 0;
+        #11620;
+        
+        calib_reset_button = 1; #100; calib_reset_button = 0;
         
         pwm_in1 = 1; #2000; pwm_in1 = 0; // throttle max - should see highest output
         pwm_in2 = 1; #1510; pwm_in2 = 0;
         pwm_in3 = 1; #1510; pwm_in3 = 0;
         pwm_in4 = 1; #1510; pwm_in4 = 0;
-        #13470;
+        arm_in  = 1; #2000; arm_in  = 0;
+        #11470;
 
         
 

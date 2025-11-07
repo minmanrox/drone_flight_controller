@@ -15,7 +15,7 @@
 module pwm_to_mix(
     input clk,          // System clock (e.g., 125 MHz)
     input pwm_in,       // PWM signal from CRSF-PWM
-    output reg signed [7:0] value // Normalized output
+    output reg [7:0] value // Normalized output
 );
     reg [19:0] high_counter = 0;
     reg [19:0] pulse_width = 0;

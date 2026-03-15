@@ -13,14 +13,14 @@
 `include "system_params.vh"
 
 module pwm_to_mix(
-    input clk,          // System clock (e.g., 125 MHz)
+    input clk,          // System clock
     input pwm_in,       // PWM signal from CRSF-PWM
     output reg [7:0] value // Normalized output
 );
     reg [19:0] high_counter = 0;
     reg [19:0] pulse_width = 0;
-//    reg [19:0] bounded_pw;
     reg prev_pwm_in = 0;
+    reg [19:0] pw_shifted;
 
     always @(posedge clk) begin
         prev_pwm_in <= pwm_in; // register for edge detection
@@ -40,10 +40,14 @@ module pwm_to_mix(
                 pulse_width <= `PWM_MAX;
             else
                 pulse_width <= high_counter;
-            
-//            pulse_width <= high_counter;
-            // Map pulse_width to unsigned value
-            value <= ((pulse_width - `PWM_MIN) * 255 / (`PWM_MAX-`PWM_MIN));
         end
+
+        // shift to 0
+        pw_shifted <= (pulse_width > `PWM_MIN)
+                        ? (pulse_width - `PWM_MIN)
+                        : 20'd0;
+
+        // extract top 8 bits to avoid costly multiplication/division
+        value <= pw_shifted[14:7];
     end
 endmodule

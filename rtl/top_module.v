@@ -24,7 +24,7 @@ module top_module (
 );
     wire [7:0] throttle, yaw, pitch, roll;
     wire signed [9:0] m1, m2, m3, m4;
-    wire signed [9:0] f1, f2, f3, f4;
+    // wire signed [9:0] f1, f2, f3, f4;
     wire [7:0] arm_lvl;
     wire arm_bit;
     assign arm_bit = arm_lvl[7];
@@ -50,14 +50,14 @@ module top_module (
               .motor1(m1), .motor2(m2), .motor3(m3), .motor4(m4));
     
     // Filter to smooth controls
-    movingAverageFilter #( .N(5)) F1 (.clk(clk), .unfiltered(m1), .filtered(f1));
-    movingAverageFilter #( .N(5)) F2 (.clk(clk), .unfiltered(m2), .filtered(f2));
-    movingAverageFilter #( .N(5)) F3 (.clk(clk), .unfiltered(m3), .filtered(f3));
-    movingAverageFilter #( .N(5)) F4 (.clk(clk), .unfiltered(m4), .filtered(f4));
+    // movingAverageFilter #( .N(5)) F1 (.clk(clk), .unfiltered(m1), .filtered(f1));
+    // movingAverageFilter #( .N(5)) F2 (.clk(clk), .unfiltered(m2), .filtered(f2));
+    // movingAverageFilter #( .N(5)) F3 (.clk(clk), .unfiltered(m3), .filtered(f3));
+    // movingAverageFilter #( .N(5)) F4 (.clk(clk), .unfiltered(m4), .filtered(f4));
 
     // Convert binary numbers to PWM signals
-    mix_to_pwm e1 (.clk(clk), .motor_value(f1), .pwm_out(pwm_out1), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state1));
-    mix_to_pwm e2 (.clk(clk), .motor_value(f2), .pwm_out(pwm_out2), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state2));
-    mix_to_pwm e3 (.clk(clk), .motor_value(f3), .pwm_out(pwm_out3), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state3));
-    mix_to_pwm e4 (.clk(clk), .motor_value(f4), .pwm_out(pwm_out4), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state4));
+    mix_to_pwm e1 (.clk(clk), .motor_value(m1), .pwm_out(pwm_out1), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state1));
+    mix_to_pwm e2 (.clk(clk), .motor_value(m2), .pwm_out(pwm_out2), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state2));
+    mix_to_pwm e3 (.clk(clk), .motor_value(m3), .pwm_out(pwm_out3), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state3));
+    mix_to_pwm e4 (.clk(clk), .motor_value(m4), .pwm_out(pwm_out4), .arm(arm_bit), .reset_cal(debounced_calib_reset), .calibration_complete(calib_state4));
 endmodule

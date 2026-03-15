@@ -10,7 +10,7 @@ VERILOG_SOURCES = \
 INCLUDE_DIRS = \
   -I../rtl
 
-MODULE ?= test_top          # cocotb Python module name (later)
+MODULE ?= test_top,test_pwm_to_mix
 
 BUILD_DIR := sim_build
 

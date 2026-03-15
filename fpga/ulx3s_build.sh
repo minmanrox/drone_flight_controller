@@ -13,6 +13,8 @@ nextpnr-ecp5 \
   ${BOARD_OPTS} \
   --json fpga/build/top.json \
   --lpf fpga/ulx3s.lpf \
+  --freq 25 \
+  --report fpga/build/timing.json \
   --textcfg fpga/build/top.config
 
 # 3. Bitstream pack

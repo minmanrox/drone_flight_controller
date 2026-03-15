@@ -19,7 +19,7 @@ module top_tb();
     wire pwm_out1, pwm_out2, pwm_out3, pwm_out4;
     
     reg arm_in, calib_reset_button;
-    wire calibration_led;
+    wire calibration_led, arm_led;
 
     // Instantiate the DUT (Design Under Test)
     top_module dut (
@@ -34,7 +34,8 @@ module top_tb();
         .pwm_out4(pwm_out4),
         .arm_in(arm_in),
         .calib_reset_button(calib_reset_button),
-        .calibration_led(calibration_led)
+        .calibration_led(calibration_led),
+        .arm_led(arm_led)
     );
 
     // Clock Generation (125MHz simulated; period = 8ns)

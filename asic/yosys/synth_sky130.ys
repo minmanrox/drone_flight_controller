@@ -1,0 +1,14 @@
+# asic/yosys/synth_sky130.ys
+# Placeholder for OpenLane/OpenROAD integration later
+
+# Paths here will eventually point into your PDK/lib dirs
+# read_liberty -lib /path/to/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+read_verilog -sv rtl/top.sv
+hierarchy -top top
+proc; opt; fsm; opt; memory; opt
+
+# Generic gate-level netlist (tech mapping via abc once liberty is available)
+synth -top top
+write_json asic/top_generic.json
+write_verilog asic/top_generic.v

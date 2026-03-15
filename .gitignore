@@ -50,3 +50,90 @@ _ide/
 # Whatever these are
 *.xml
 *.rst
+
+#----------------------------------------------------------------------
+# Global Python stuff
+#----------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+#----------------------------------------------------------------------
+# Build / synthesis / simulation artifacts
+#----------------------------------------------------------------------
+
+# Generic build dirs
+build/
+sim_build/
+fpga/build/
+asic/build/
+
+# Verilator artifacts
+V*
+*.d
+*.o
+*.a
+*.so
+*.dll
+*.dylib
+*.vcd
+*.fst
+*.vpd
+*.saif
+
+# Yosys logs and outputs
+*.yslog
+*.json
+*.blif
+*.edif
+*.dot
+*.rpt
+
+# nextpnr / ecppack outputs
+*.config
+*.bit
+*.svf
+
+# OpenROAD/OpenLane / ASIC flow
+results/
+reports/
+tmp/
+runs/
+
+#----------------------------------------------------------------------
+# Editor / IDE / OS junk
+#----------------------------------------------------------------------
+# VSCode
+.vscode/
+
+# JetBrains / CLion / PyCharm
+.idea/
+
+# Other editors
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Linux/Windows garbage
+Thumbs.db
+desktop.ini
+
+#----------------------------------------------------------------------
+# Project-specific
+#----------------------------------------------------------------------
+# Cocotb result files
+sim/results.xml
+sim/build/results.xml
+

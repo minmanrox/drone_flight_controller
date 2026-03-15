@@ -26,7 +26,9 @@ module top_module (
     wire signed [9:0] m1, m2, m3, m4;
     wire signed [9:0] f1, f2, f3, f4;
     wire [7:0] arm_lvl;
+    wire arm_bit;
     assign arm_bit = arm_lvl[7];
+    assign arm_led = arm_bit;
     
     // debounce calib_reset_button
     wire debounced_calib_reset;

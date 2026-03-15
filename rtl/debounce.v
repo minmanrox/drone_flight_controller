@@ -27,6 +27,7 @@ my_dff_en d2(clk,slow_clk_en,Q1,Q2);
 assign Q2_bar = ~Q2;
 assign pb_out = Q1 & Q2_bar;
 endmodule
+/* verilator lint_off DECLFILENAME */
 // Slow clock enable for debouncing button 
 module clock_enable(input Clk_100M,output slow_clk_en);
     reg [26:0]counter=0;
@@ -45,5 +46,5 @@ module my_dff_en(input DFF_CLOCK, clock_enable,D, output reg Q=0);
            Q <= D;
     end
 endmodule 
-
+/* verilator lint_on DECLFILENAME */
 

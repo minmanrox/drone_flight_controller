@@ -16,7 +16,7 @@
 `include "system_params.vh"
 
 module mix_to_pwm (
-    input clk,                    // 125 MHz
+    input clk,                    // 25 MHz
     input signed [9:0] motor_value, // Mixer value (-512 to +511 ideally)
     input arm,
     input reset_cal,
@@ -24,7 +24,7 @@ module mix_to_pwm (
     output reg calibration_complete
 );
     localparam int MAX_PULSE_WIDTH = $clog2(`PWM_MAX + 1);
-    reg [MAX_PULSE_WIDTH-1:0] counter = 0;
+    reg [$clog2(`PWM_PERIOD+1)-1:0] counter = 0;
     reg [$clog2(`CALIB_HOLD + 1)-1:0] calibration_counter = 0;  // Counter for calibration timing
     reg [1:0] calibration_state = 0;     // FSM for calibration state 0=MIN, 1=MAX, 2=normal
     

@@ -16,7 +16,7 @@ BUILD_DIR := sim_build
 
 .PHONY: sim
 sim: $(BUILD_DIR)
-	verilator -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC --cc --trace --timing\
+	verilator -Wall --cc --trace --timing\
 	  --top-module $(TOPLEVEL) \
 	  $(INCLUDE_DIRS) \
 	  $(VERILOG_SOURCES) \

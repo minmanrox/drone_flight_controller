@@ -19,7 +19,7 @@ async def dummy_smoke_test(dut):
     dut.calib_reset_button.value = 0
 
     # Let things settle
-    await Timer(1, units="ns")
+    await Timer(1, unit="ns")
 
     # Apply a simple stimulus
     dut.arm_in.value = 1

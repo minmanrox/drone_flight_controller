@@ -17,10 +17,10 @@ module pwm_to_mix(
     input pwm_in,       // PWM signal from CRSF-PWM
     output reg [7:0] value // Normalized output
 );
-    reg [19:0] high_counter = 0;
-    reg [19:0] pulse_width = 0;
+    reg [$clog2(`PWM_MAX+1)-1:0] high_counter = 0;
+    reg [$clog2(`PWM_MAX+1)-1:0] pulse_width = 0;
     reg prev_pwm_in = 0;
-    reg [19:0] pw_shifted;
+    reg [$clog2(`PWM_MAX-`PWM_MIN+1)-1:0] pw_shifted;
 
     always @(posedge clk) begin
         prev_pwm_in <= pwm_in; // register for edge detection

@@ -5,7 +5,7 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer
 
 CLK_PERIOD_NS = 40  # 25 MHz
 PERIOD_CYCLES = 500_000  # 20 ms @ 25 MHz
-CALIB_CYCLES = 125_000 # UPDATE in system_params.vh - set lower to improve sim time
+CALIB_CYCLES = 500_000 # UPDATE in system_params.vh - set lower to improve sim time
 
 async def measure_pwm_duty(dut, cycles: int) -> dict[int, float]:
     """
@@ -129,14 +129,14 @@ async def test_calibration_sequence(dut):
 
     assert(int(dut.calibration_led.value) == 0)
     assert(int(dut.e1.calibration_state.value) == 0)
-    min_calib_duties = await measure_pwm_duty(dut, CALIB_CYCLES)
+    max_calib_duties = await measure_pwm_duty(dut, CALIB_CYCLES)
     dut._log.info("Calibration phase 0 duty cycles:")
-    print(min_calib_duties)
+    print(max_calib_duties)
 
     assert(int(dut.e1.calibration_state.value) == 1)
-    max_calib_duties = await measure_pwm_duty(dut, CALIB_CYCLES)
+    min_calib_duties = await measure_pwm_duty(dut, CALIB_CYCLES)
     dut._log.info("Calibration phase 1 duty cycles:")
-    print(max_calib_duties)
+    print(min_calib_duties)
 
     assert(int(dut.e1.calibration_state.value) == 2)
     dut._log.info("Finished calibration phase 1")
@@ -192,8 +192,8 @@ async def test_arm_gates_throttle(dut):
     d1_disarmed = duty_disarmed[1]
     dut._log.info(f"Disarmed duty pwm_out1={d1_disarmed:.4f}")
 
-    # Expect very low duty (ideally 0); allow tiny glitches if any
-    assert d1_disarmed < 0.01, "pwm_out1 should be off or near 0 when arm=0"
+    # Expect minimum duty (ideally 0.05)
+    assert d1_disarmed <= 0.05, "pwm_out1 should be near 0.05 when arm=0"
 
     # Phase 2: arm=1, same max throttle, now PWM should be present
     dut._log.info("Phase 2: arm=1, throttle=max")

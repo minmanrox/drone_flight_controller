@@ -33,11 +33,11 @@ module mix_to_pwm (
 
     // Use wire with assign for combinational logic
     wire [MAX_PULSE_WIDTH-1:0] pulse_width;
-    assign pulse_width = arm ? `PWM_MIN + ((motor_value + 512) * (`PWM_MAX-`PWM_MIN) / 1024) : 0;
+    assign pulse_width = arm ? `PWM_MIN + ((motor_value + 512) * (`PWM_MAX-`PWM_MIN) / 1024) : `PWM_MIN;
     
     // Pulse MIN or MAX based on calibration state
     wire [MAX_PULSE_WIDTH-1:0] calibration_pulse_width;
-    assign calibration_pulse_width = (calibration_state == 2'd0) ? `PWM_MIN : `PWM_MAX;
+    assign calibration_pulse_width = (calibration_state == 2'd0) ? `PWM_MAX : `PWM_MIN;
     
     // Select pulse width based on calibration state
     wire [MAX_PULSE_WIDTH-1:0] active_pulse_width;

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-BOARD_OPTS="--45k --package CABGA381"  # change to --12k/--85k if needed
+BOARD_OPTS="--12k --package CABGA381"
 
 mkdir -p fpga/build
 

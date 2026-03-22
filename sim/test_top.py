@@ -6,6 +6,11 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer
 CLK_PERIOD_NS = 40  # 25 MHz
 PERIOD_CYCLES = 500_000  # 20 ms @ 25 MHz
 CALIB_CYCLES = 500_000 # UPDATE in system_params.vh - set lower to improve sim time
+HIGH_CYCLES_MAX = 50_000
+LOW_CYCLES_MAX  = PERIOD_CYCLES - HIGH_CYCLES_MAX
+HIGH_CYCLES_MIN = 25_000
+LOW_CYCLES_MIN  = PERIOD_CYCLES - HIGH_CYCLES_MIN
+
 
 async def measure_pwm_duty(dut, cycles: int) -> dict[int, float]:
     """
@@ -214,3 +219,171 @@ async def test_arm_gates_throttle(dut):
     assert d1_armed > 0.075, "pwm_out1 should be active when arm=1 and throttle=max"
 
     dut._log.info("Arm gating test PASSED")
+
+
+async def drive_controls(dut, throttle, pitch, roll, yaw, periods=1):
+    """Set normalized control inputs in your preferred representation."""
+    if throttle < 0 or throttle > 1:
+        raise("drive_controls must be between 0 and 1")
+    if pitch < 0 or pitch > 1:
+        raise("drive_controls must be between 0 and 1")
+    if roll < 0 or roll > 1:
+        raise("drive_controls must be between 0 and 1")
+    if yaw < 0 or yaw > 1:
+        raise("drive_controls must be between 0 and 1")
+
+    throttleCyclesHigh  = int(throttle  * (HIGH_CYCLES_MAX-HIGH_CYCLES_MIN) + HIGH_CYCLES_MIN)
+    pitchCyclesHigh     = int(pitch     * (HIGH_CYCLES_MAX-HIGH_CYCLES_MIN) + HIGH_CYCLES_MIN)
+    rollCyclesHigh      = int(roll      * (HIGH_CYCLES_MAX-HIGH_CYCLES_MIN) + HIGH_CYCLES_MIN)
+    yawCyclesHigh       = int(yaw       * (HIGH_CYCLES_MAX-HIGH_CYCLES_MIN) + HIGH_CYCLES_MIN)
+
+    pwm_cfgs = {
+        dut.pwm_in1: (throttleCyclesHigh, PERIOD_CYCLES - throttleCyclesHigh),
+        dut.pwm_in2: (yawCyclesHigh, PERIOD_CYCLES - yawCyclesHigh),
+        dut.pwm_in3: (pitchCyclesHigh, PERIOD_CYCLES - pitchCyclesHigh),
+        dut.pwm_in4: (rollCyclesHigh, PERIOD_CYCLES - rollCyclesHigh),
+        dut.arm_in: (HIGH_CYCLES_MAX, LOW_CYCLES_MAX),
+    }
+
+    await drive_multiple_pwms(
+        clk=dut.clk,
+        pwm_cfgs=pwm_cfgs,
+        periods=periods
+    )
+
+
+async def read_mixer_values(dut):
+    """Sample current logic levels for the 4 PWM outputs."""
+    return {
+        "throttleRaw": str(dut.mx.throttle.value),
+        "pitchRaw":    str(dut.mx.pitch.value),
+        "rollRaw":     str(dut.mx.roll.value),
+        "yawRaw":      str(dut.mx.yaw.value),
+        "throttleInt": int(dut.mx.throttleSigned.value.to_signed()),
+        "pitchInt":    int(dut.mx.pitchSigned.value.to_signed()),
+        "rollInt":     int(dut.mx.rollSigned.value.to_signed()),
+        "yawInt":      int(dut.mx.yawSigned.value.to_signed()),
+        "m1":       str(dut.mx.motor1.value),
+        "m2":       str(dut.mx.motor2.value),
+        "m3":       str(dut.mx.motor3.value),
+        "m4":       str(dut.mx.motor4.value),
+    }
+
+
+@cocotb.test(skip=True)
+async def test_throttle_min_max(dut):
+    """Throttle axis only: min and max, all other axes neutral."""
+    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+
+    # Throttle minimum
+    await drive_controls(dut, throttle=0, pitch=0.5, roll=0.5, yaw=0.5)
+    levels = await read_mixer_values(dut)
+    dut._log.debug(f"Levels (min): {levels}")
+
+    min_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.debug(f"Duties (min): {min_duties}")
+    for motor, duty in min_duties.items():
+        assert duty > 0.07 and duty < 0.08, f"min_throttle motor {motor} duty out of range at {duty}"
+
+    # Throttle maximum
+    await drive_controls(dut, throttle=1, pitch=0.5, roll=0.5, yaw=0.5)
+    levels = await read_mixer_values(dut)
+    dut._log.debug(f"Levels (min): {levels}")
+    max_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.debug(f"Duties (max): {max_duties}")
+    for motor, duty in max_duties.items():
+        assert duty > 0.08 and duty < 0.09, f"max_throttle motor {motor} duty out of range at {duty}"
+
+
+@cocotb.test(skip=True)
+async def test_pitch_min_max(dut):
+    """Pitch axis only: min and max, all other axes neutral."""
+    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+
+    # Pitch minimum
+    dut._log.info("Driving pitch low (tilt backwards)")
+    await drive_controls(dut, throttle=0.5, pitch=0, roll=0.5, yaw=0.5)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (min): {levels}")
+
+    min_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (min): {min_duties}")
+    # expect front motors (1, 2) high, rear motors (3, 4) low
+    assert min_duties[1] == min_duties[2], f"Motors 1 ({min_duties[1]}) and 2 ({min_duties[2]}) not equal"
+    assert min_duties[3] == min_duties[4], f"Motors 3 ({min_duties[3]}) and 4 ({min_duties[4]}) not equal"
+    assert min_duties[1] >  min_duties[4], f"Front motors ({min_duties[1]}) not faster than rear motors ({min_duties[4]})"
+
+    # Pitch maximum
+    dut._log.info("Driving pitch high (tilt forwards)")
+    await drive_controls(dut, throttle=0.5, pitch=1, roll=0.5, yaw=0.5)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (min): {levels}")
+    max_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (max): {max_duties}")
+    # expect front motors (1, 2) low, rear motors (3, 4) high
+    assert max_duties[1] == max_duties[2], f"Motors 1 ({max_duties[1]}) and 2 ({max_duties[2]}) not equal"
+    assert max_duties[3] == max_duties[4], f"Motors 3 ({max_duties[3]}) and 4 ({max_duties[4]}) not equal"
+    assert max_duties[1] <  max_duties[4], f"Front motors ({max_duties[1]}) not slower than rear motors ({max_duties[4]})"
+
+
+@cocotb.test(skip=True)
+async def test_roll_min_max(dut):
+    """Roll axis only: min and max, all other axes neutral."""
+    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+
+    # Roll minimum
+    dut._log.info("Driving roll low (tilt left)")
+    await drive_controls(dut, throttle=0.5, pitch=0.5, roll=0, yaw=0.5)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (min): {levels}")
+
+    min_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (min): {min_duties}")
+    # expect left motors (1, 4) low, right motors (2, 3) high
+    assert min_duties[1] == min_duties[4], f"Motors 1 ({min_duties[1]}) and 4 ({min_duties[4]}) not equal"
+    assert min_duties[2] == min_duties[3], f"Motors 2 ({min_duties[2]}) and 3 ({min_duties[3]}) not equal"
+    assert min_duties[1] <  min_duties[2], f"Right motors ({min_duties[2]}) not faster than left motors ({min_duties[1]})"
+
+    # Roll maximum
+    dut._log.info("Driving roll high (tilt right)")
+    await drive_controls(dut, throttle=0.5, pitch=0.5, roll=1, yaw=0.5)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (min): {levels}")
+    max_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (max): {max_duties}")
+    # expect left motors (1, 4) high, right motors (2, 3) low
+    assert max_duties[1] == max_duties[4], f"Motors 1 ({max_duties[1]}) and 4 ({max_duties[4]}) not equal"
+    assert max_duties[2] == max_duties[3], f"Motors 2 ({max_duties[2]}) and 3 ({max_duties[3]}) not equal"
+    assert max_duties[1] >  max_duties[2], f"Left motors ({max_duties[1]}) not faster than right motors ({max_duties[2]})"
+
+
+@cocotb.test(skip=True)
+async def test_yaw_min_max(dut):
+    """Yaw axis only: min and max, all other axes neutral."""
+    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+
+    # Yaw minimum
+    dut._log.info("Driving yaw low (rotate CCW)")
+    await drive_controls(dut, throttle=0.5, pitch=0.5, roll=0.5, yaw=0)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (min): {levels}")
+
+    min_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (min): {min_duties}")
+    # expect CW motors (2, 4) low, CCW motors (1, 3) high
+    assert min_duties[2] == min_duties[4], f"Motors 2 ({min_duties[1]}) and 4 ({min_duties[4]}) not equal"
+    assert min_duties[1] == min_duties[3], f"Motors 1 ({min_duties[2]}) and 3 ({min_duties[3]}) not equal"
+    assert min_duties[1] >  min_duties[2], f"CW motors ({min_duties[2]}) not slower than CCW motors ({min_duties[1]})"
+
+    # Yaw maximum
+    dut._log.info("Driving yaw high (rotate CW)")
+    await drive_controls(dut, throttle=0.5, pitch=0.5, roll=0.5, yaw=1)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (min): {levels}")
+    max_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (max): {max_duties}")
+    # expect CW motors (2, 4) high, CCW motors (1, 3) low
+    assert max_duties[2] == max_duties[4], f"Motors 2 ({max_duties[1]}) and 4 ({max_duties[4]}) not equal"
+    assert max_duties[1] == max_duties[3], f"Motors 1 ({max_duties[2]}) and 3 ({max_duties[3]}) not equal"
+    assert max_duties[1] <  max_duties[2], f"CCW motors ({max_duties[1]}) not slower than CW motors ({max_duties[2]})"
+

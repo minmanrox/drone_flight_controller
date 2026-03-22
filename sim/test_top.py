@@ -387,3 +387,39 @@ async def test_yaw_min_max(dut):
     assert max_duties[1] == max_duties[3], f"Motors 1 ({max_duties[2]}) and 3 ({max_duties[3]}) not equal"
     assert max_duties[1] <  max_duties[2], f"CCW motors ({max_duties[1]}) not slower than CW motors ({max_duties[2]})"
 
+
+@cocotb.test(skip=True)
+async def test_control_extremes(dut):
+    """Test extreme control inputs and confirm outputs stay within bounds and match expected behavior"""
+    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+
+    dut._log.info("Driving all inputs low")
+    await drive_controls(dut, throttle=0, pitch=0, roll=0, yaw=0)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (min): {levels}")
+
+    min_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (min): {min_duties}")
+    # check outputs in range (1-2ms)
+    for motor, duty in min_duties.items():
+        assert duty >= 0.05 and duty <= 0.1, f"All low - Motor {motor} duty out of range at {duty}"
+    # for all controls low, motors speeds should be M4 < M1 = M2 = M3
+    assert min_duties[1] == min_duties[2], f"All low - Motors 1 {min_duties[1]}) and 2 ({min_duties[2]}) not equal"
+    assert min_duties[1] == min_duties[3], f"All low - Motors 1 {min_duties[1]}) and 3 ({min_duties[3]}) not equal"
+    assert min_duties[4] <  min_duties[1], f"All low - Motor 4 ({min_duties[4]}) not slower than other motors ({min_duties[1]})"
+
+
+    dut._log.info("Driving all inputs high")
+    await drive_controls(dut, throttle=1, pitch=1, roll=1, yaw=1)
+    levels = await read_mixer_values(dut)
+    dut._log.info(f"Levels (max): {levels}")
+
+    max_duties = await measure_pwm_duty(dut, PERIOD_CYCLES)
+    dut._log.info(f"Duties (max): {max_duties}")
+    # check outputs in range (1-2ms)
+    for motor, duty in max_duties.items():
+        assert duty >= 0.05 and duty <= 0.1, f"All high - Motor {motor} duty out of range at {duty}"
+    # for all controls low, motors speeds should be M4 > M1 = M2 = M3
+    assert max_duties[1] == max_duties[2], f"All high - Motors 1 {max_duties[1]}) and 2 ({max_duties[2]}) not equal"
+    assert max_duties[1] == max_duties[3], f"All high - Motors 1 {max_duties[1]}) and 3 ({max_duties[3]}) not equal"
+    assert max_duties[4] >  max_duties[1], f"All high - Motor 4 ({max_duties[4]}) not faster than other motors ({max_duties[1]})"

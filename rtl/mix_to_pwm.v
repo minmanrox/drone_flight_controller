@@ -26,7 +26,7 @@ module mix_to_pwm (
     localparam int MAX_PULSE_WIDTH = $clog2(`PWM_MAX + 1);
     reg [$clog2(`PWM_PERIOD+1)-1:0] counter = 0;
     reg [$clog2(`CALIB_HOLD + 1)-1:0] calibration_counter = 0;  // Counter for calibration timing
-    reg [1:0] calibration_state = 0;     // FSM for calibration state 0=MIN, 1=MAX, 2=normal
+    reg [1:0] calibration_state = 2'd2;     // FSM for calibration state 0=MIN, 1=MAX, 2=normal
     
     // Calibration timing constants (for 125 MHz clock)
     localparam CAL_TIME = 30'd`CALIB_HOLD;

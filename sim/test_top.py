@@ -2,6 +2,7 @@
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, Timer
+from cocotb.utils import get_sim_time
 
 CLK_PERIOD_NS = 40  # 25 MHz
 PERIOD_CYCLES = 500_000  # 20 ms @ 25 MHz
@@ -112,9 +113,9 @@ async def dummy_smoke_test(dut):
     dut._log.info("Dummy smoke test completed")
 
 
-@cocotb.test(skip=True)
+@cocotb.test(skip=False)
 async def test_calibration_sequence(dut):
-    """Hold throttle low then high for 5s each and check calibration completes."""
+    """Trigger calibration mechanism and confirm output matches expected."""
     dut._log.warning("ENSURE CALIB_HOLD IN system_params.vh MATCHES CALIB_CYCLES IN test_top.py")
     dut._log.info("Starting top_module calibration sequence test")
 
@@ -132,12 +133,19 @@ async def test_calibration_sequence(dut):
     # Let reset / initial logic settle
     await Timer(1, unit="ms")
 
+    dut.calib_reset_button.value = 1
+    await Timer(10, unit="ms")
+    dut.calib_reset_button.value = 0
+    await RisingEdge(dut.clk)
+
     assert(int(dut.calibration_led.value) == 0)
     assert(int(dut.e1.calibration_state.value) == 0)
     max_calib_duties = await measure_pwm_duty(dut, CALIB_CYCLES)
     dut._log.info("Calibration phase 0 duty cycles:")
     print(max_calib_duties)
+    dut._log.info(f"Finished phase 0 at sim time {get_sim_time(units='ns')}")
 
+    await Timer(10, unit="ms")
     assert(int(dut.e1.calibration_state.value) == 1)
     min_calib_duties = await measure_pwm_duty(dut, CALIB_CYCLES)
     dut._log.info("Calibration phase 1 duty cycles:")

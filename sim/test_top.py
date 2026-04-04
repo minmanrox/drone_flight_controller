@@ -281,7 +281,7 @@ async def read_mixer_values(dut):
 @cocotb.test(skip=True)
 async def test_throttle_min_max(dut):
     """Throttle axis only: min and max, all other axes neutral."""
-    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, CLK_PERIOD_NS, unit="ns").start())
 
     # Throttle minimum
     await drive_controls(dut, throttle=0, pitch=0.5, roll=0.5, yaw=0.5)
@@ -306,7 +306,7 @@ async def test_throttle_min_max(dut):
 @cocotb.test(skip=True)
 async def test_pitch_min_max(dut):
     """Pitch axis only: min and max, all other axes neutral."""
-    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, CLK_PERIOD_NS, unit="ns").start())
 
     # Pitch minimum
     dut._log.info("Driving pitch low (tilt backwards)")
@@ -337,7 +337,7 @@ async def test_pitch_min_max(dut):
 @cocotb.test(skip=True)
 async def test_roll_min_max(dut):
     """Roll axis only: min and max, all other axes neutral."""
-    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, CLK_PERIOD_NS, unit="ns").start())
 
     # Roll minimum
     dut._log.info("Driving roll low (tilt left)")
@@ -368,7 +368,7 @@ async def test_roll_min_max(dut):
 @cocotb.test(skip=True)
 async def test_yaw_min_max(dut):
     """Yaw axis only: min and max, all other axes neutral."""
-    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, CLK_PERIOD_NS, unit="ns").start())
 
     # Yaw minimum
     dut._log.info("Driving yaw low (rotate CCW)")
@@ -399,7 +399,7 @@ async def test_yaw_min_max(dut):
 @cocotb.test(skip=True)
 async def test_control_extremes(dut):
     """Test extreme control inputs and confirm outputs stay within bounds and match expected behavior"""
-    cocotb.start_soon(Clock(dut.clk, 8, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, CLK_PERIOD_NS, unit="ns").start())
 
     dut._log.info("Driving all inputs low")
     await drive_controls(dut, throttle=0, pitch=0, roll=0, yaw=0)

@@ -17,7 +17,7 @@
 
 module mix_to_pwm (
     input clk,                    // 25 MHz
-    input signed [9:0] motor_value, // Mixer value (-512 to +511 ideally)
+    input signed [9:0] motor_value, // Mixer value (-293 to +489 by observation)
     input arm,
     input reset_cal,
     output reg pwm_out,
@@ -33,7 +33,13 @@ module mix_to_pwm (
 
     // Use wire with assign for combinational logic
     wire [MAX_PULSE_WIDTH-1:0] pulse_width;
-    assign pulse_width = arm ? `PWM_MIN + ((motor_value + 512) * (`PWM_MAX-`PWM_MIN) / 1024) : `PWM_MIN;
+    wire signed [9:0] motor_value_clamped;
+
+    assign motor_value_clamped =
+        (motor_value < -10'sd200) ? -10'sd200 :
+        (motor_value >  10'sd489) ?  10'sd489 :
+                                motor_value;
+    assign pulse_width = arm ? `PWM_MIN + ((motor_value_clamped + 200) * (`PWM_MAX-`PWM_MIN) / 1024) : `PWM_MIN;
     
     // Pulse MIN or MAX based on calibration state
     wire [MAX_PULSE_WIDTH-1:0] calibration_pulse_width;

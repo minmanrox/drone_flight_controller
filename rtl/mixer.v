@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 //
 // Project      : Drone Flight Controller
@@ -20,9 +21,9 @@ module mixer (
     output signed [9:0] motor1, motor2, motor3, motor4
 );
     wire signed [8:0] yawSigned, pitchSigned, rollSigned, throttleSigned;
-    assign yawSigned = $signed(yaw - 128);
-    assign pitchSigned = $signed(pitch - 128);
-    assign rollSigned = $signed(roll - 128);
+    assign yawSigned = $signed(yaw - 97);
+    assign pitchSigned = $signed(pitch - 97);
+    assign rollSigned = $signed(roll - 97);
 //    assign throttleSigned = $signed(throttle);
     assign throttleSigned = {1'b0, throttle};
     

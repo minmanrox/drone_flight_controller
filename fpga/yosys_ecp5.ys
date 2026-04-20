@@ -1,0 +1,16 @@
+# fpga/yosys_ecp5.ys
+# Synthesize 'top_module' for ECP5 (ULX3S)
+
+read_verilog -sv rtl/*
+
+hierarchy -top top_module
+
+# Generic cleanup / checks
+proc; opt; fsm; opt; memory; opt
+
+# ECP5 technology mapping
+synth_ecp5 -top top_module -json fpga/build/top.json
+
+# Write a post-synth netlist
+#write_verilog fpga/build/top_synth.v
+
